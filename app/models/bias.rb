@@ -1,0 +1,2 @@
+class Bias < ApplicationRecord
+end
