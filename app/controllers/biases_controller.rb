@@ -3,6 +3,14 @@ class BiasesController < ApplicationController
     render json: Bias.all
   end
 
+  def show
+    render json: Bias.find(params[:id])
+  end
+
+  def slug
+    render json: Bias.find_by(slug: params[:slug])
+  end
+
   def crawl
     base = 'https://mediabiasfactcheck.com'
 
@@ -22,6 +30,7 @@ class BiasesController < ApplicationController
             d.sub(/see also:/i, '').strip
           end
           url "#{base}/#{p}/"
+          slug p
         end
       end
 
