@@ -16,30 +16,28 @@ class BiasesController < ApplicationController
 
     biases = []
 
-    begin
-      %w(left leftcenter center right-center right pro-science conspiracy satire).each do |p|
-        biases << Wombat.crawl do
-          base_url base
-          path "/#{p}/"
+    %w(left leftcenter center right-center right pro-science conspiracy satire).each do |p|
+      biases << Wombat.crawl do
+        base_url base
+        path "/#{p}/"
 
-          id({ xpath: '/html/body/@class' }) do |i|
-            /page-id-([0-9]+)/.match(i)[1]
-          end
-          name({ css: '.page > .entry-header h1.entry-title' })
-          description({ css: '.entry-content p:first-child' }) do |d|
-            d.sub(/see also:/i, '').strip
-          end
-          url "#{base}/#{p}/"
-          slug p
+        id({ xpath: '/html/body/@class' }) do |i|
+          /page-id-([0-9]+)/.match(i)[1]
         end
+        name({ css: '.page > .entry-header h1.entry-title' })
+        description({ css: '.entry-content p:first-child' }) do |d|
+          d.sub(/see also:/i, '').strip
+        end
+        url "#{base}/#{p}/"
+        slug p
       end
-
-      Bias.delete_all
-      biases.each do |b|
-        Bias.create(b)
-      end
-
-      head :ok
     end
+
+    Bias.delete_all
+    biases.each do |b|
+      Bias.create(b)
+    end
+
+    head :ok
   end
 end
