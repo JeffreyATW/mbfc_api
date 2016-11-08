@@ -1,5 +1,10 @@
 Rails.application.routes.draw do
-  resources :sources
+  resources :sources do
+    collection do
+      get 'crawl'
+    end
+  end
+
   resources :biases do
     collection do
       get 'crawl'

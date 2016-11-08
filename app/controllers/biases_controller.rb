@@ -8,24 +8,29 @@ class BiasesController < ApplicationController
 
     biases = []
 
-    %w(left leftcenter center right-center right pro-science conspiracy satire).each do |p|
-      output = Wombat.crawl do
-        base_url base
-        path "/#{p}/"
+    begin
+      %w(left leftcenter center right-center right pro-science conspiracy satire).each do |p|
+        biases << Wombat.crawl do
+          base_url base
+          path "/#{p}/"
 
-        id({ xpath: '/html/body/@class' })
-        name({ css: 'h1.entry-title' })
-        description({ css: '.entry-content p:first-child' })
-        url "#{base}/#{p}/"
+          id({ xpath: '/html/body/@class' }) do |i|
+            /page-id-([0-9]+)/.match(i)[1]
+          end
+          name({ css: '.page > .entry-header h1.entry-title' })
+          description({ css: '.entry-content p:first-child' }) do |d|
+            d.sub(/see also:/i, '').strip
+          end
+          url "#{base}/#{p}/"
+        end
       end
-      output['id'] = /page-id-([0-9]+)/.match(output['id'])[1]
-      output['description'] = output['description'].sub(/see also:/i, '').strip
-      biases << output
-    end
 
-    Bias.delete_all
-    biases.each do |b|
-      Bias.create(b)
+      Bias.delete_all
+      biases.each do |b|
+        Bias.create(b)
+      end
+
+      head :ok
     end
   end
 end
